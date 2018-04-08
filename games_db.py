@@ -224,12 +224,12 @@ class GamesDB:
         self.cursor.execute(Query, (profile_name, encrypted_password))
         self.connection.commit()
     def getUserAuthInfo(self, profile_name):
-        Query = "SELECT rowid, encrypted_password FROM users WHERE profile_name = %s"
+        Query = "SELECT id, encrypted_password FROM users WHERE profile_name = %s"
         self.cursor.execute(Query, (profile_name,))
         user = self.cursor.fetchall()
         return user
     def getUser(self, ID):
-        Query = "SELECT profile_name FROM users WHERE rowid = %s"
+        Query = "SELECT profile_name FROM users WHERE id = %s"
         self.cursor.execute(Query, (ID,))
         user = self.cursor.fetchall()
         return user
