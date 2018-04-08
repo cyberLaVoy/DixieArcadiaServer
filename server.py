@@ -3,7 +3,7 @@ from http import cookies
 from games_db import GamesDB
 from urllib.parse import parse_qs
 from passlib.hash import bcrypt
-import json, time
+import json, time, sys
 
 # if set True, will disable all authorization checks on operations
 gAutoAuthActive = True
