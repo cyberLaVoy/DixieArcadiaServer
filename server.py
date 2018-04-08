@@ -414,8 +414,8 @@ class RequestHandler(BaseHTTPRequestHandler):
             auth_info = db.getUserAuthInfo(profile_name)
             verified = bcrypt.verify(password, auth_info[0]["encrypted_password"])
             if verified:
-                self.mSession["userID"] = auth_info[0]["rowid"]
-                user = db.getUser(auth_info[0]["rowid"])
+                self.mSession["userID"] = auth_info[0]["id"]
+                user = db.getUser(auth_info[0]["id"])
                 profile_name = user[0]["profile_name"]
                 self.mSession["profile_name"] = profile_name
                 isAdmin = db.isAdmin(profile_name)
