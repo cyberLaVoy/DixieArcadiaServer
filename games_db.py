@@ -23,9 +23,9 @@ class GamesDB:
         self.connection.close()
 
     def createTables(self):
-        usersTable = "CREATE TABLE IF NOT EXISTS users (id integer PRIMARY KEY, profile_name varchar, encrypted_password varchar);"
+        usersTable = "CREATE TABLE IF NOT EXISTS users ( id integer SERIAL PRIMARY KEY, profile_name varchar, encrypted_password varchar);"
         adminsTable = "CREATE TABLE IF NOT EXISTS admins ( profile_name varchar NOT NULL UNIQUE );"
-        gamesTable = "CREATE TABLE IF NOT EXISTS games ( id integer PRIMARY KEY, profile_name varchar, description varchar, game_name varchar, last_played integer DEFAULT NULL, plays integer DEFAULT 0, zip varchar, thumbnail varchar);"
+        gamesTable = "CREATE TABLE IF NOT EXISTS games ( id integer SERIAL PRIMARY KEY, profile_name varchar, description varchar, game_name varchar, last_played integer DEFAULT NULL, plays integer DEFAULT 0, zip varchar, thumbnail varchar);"
         tagsTable = "CREATE TABLE IF NOT EXISTS tags ( game_id integer, tag varchar );"
         ratingsTable = "CREATE TABLE IF NOT EXISTS ratings ( game_id integer, thumb_up varchar, thumb_down varchar );"
 
