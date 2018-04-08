@@ -43,8 +43,7 @@ class GamesDB:
         if not self.checkProfileName(clientUserName):
             clientInsert = "INSERT INTO users (profile_name, encrypted_password) VALUES (%s,%s)"
             toAdmin = "INSERT INTO admins (profile_name) VALUES (%s)"
-            #encrypted_password = bcrypt.encrypt(clientPassword)
-            encrypted_password = clientPassword
+            encrypted_password = bcrypt.encrypt(clientPassword)
             self.cursor.execute(clientInsert, (clientUserName, encrypted_password))
             self.cursor.execute(toAdmin, (clientUserName,))
             self.connection.commit()
