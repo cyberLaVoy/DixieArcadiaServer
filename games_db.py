@@ -41,8 +41,8 @@ class GamesDB:
         clientUserName = "client"
         clientPassword = "Over8the8misty8mountain!@"
         if not self.checkProfileName(clientUserName):
-            clientInsert = "INSERT INTO users (profile_name, encrypted_password) VALUES (?,?)"
-            toAdmin = "INSERT INTO admins (profile_name) VALUES (?)"
+            clientInsert = "INSERT INTO users (profile_name, encrypted_password) VALUES (%s,%s)"
+            toAdmin = "INSERT INTO admins (profile_name) VALUES (%s)"
             #encrypted_password = bcrypt.encrypt(clientPassword)
             encrypted_password = clientPassword
             self.cursor.execute(clientInsert, (clientUserName, encrypted_password))
@@ -52,14 +52,14 @@ class GamesDB:
 
 # Game Methods
     def createGame(self, profile_name, game_name, description):
-        sql = "INSERT INTO games (profile_name, game_name, description) VALUES (?,?,?)"
+        sql = "INSERT INTO games (profile_name, game_name, description) VALUES (%s,%s,%s)"
         vals = (profile_name, game_name, description)
         self.cursor.execute(sql, vals)
         self.connection.commit()
         return self.cursor.lastrowid 
 
     def updateGameInfo(self, game_id, game_name, description, tags):
-        sql = "UPDATE games SET game_name = ?, description = ? WHERE id = ?"
+        sql = "UPDATE games SET game_name = %s, description = %s WHERE id = %s"
         vals = (game_name, description, game_id)
         self.cursor.execute(sql, vals)
         self.connection.commit()
@@ -68,34 +68,34 @@ class GamesDB:
         for tag in tags:
             self.addTag(game_id, tag)
     def setGameThumnail(self, game_id, thumnail):
-        sql = "UPDATE games SET thumbnail = ? WHERE id = ?"
+        sql = "UPDATE games SET thumbnail = %s WHERE id = %s"
         vals = (thumnail, game_id)
         self.cursor.execute(sql, vals)
         self.connection.commit()
     def setGameZip(self, game_id, zip):
-        sql = "UPDATE games SET zip = ? WHERE id = ?"
+        sql = "UPDATE games SET zip = %s WHERE id = %s"
         vals = (zip, game_id)
         self.cursor.execute(sql, vals)
         self.connection.commit()
 
     def incrementPlays(self, game_id):
-        sql = "SELECT plays FROM games WHERE id=?"
+        sql = "SELECT plays FROM games WHERE id=%s"
         self.cursor.execute(sql, (game_id,))
         rows = self.cursor.fetchall()
         plays = rows[0]["plays"]
         plays += 1
-        sql = "UPDATE games SET plays = ? WHERE id = ?"
+        sql = "UPDATE games SET plays = %s WHERE id = %s"
         self.cursor.execute(sql, (plays, game_id))
         self.connection.commit()
 
     def deleteGame(self, id):
-        sql = "DELETE FROM games WHERE id=?"
+        sql = "DELETE FROM games WHERE id=%s"
         self.cursor.execute(sql, (id,))
         self.connection.commit()
-        sql = "DELETE FROM tags WHERE game_id=?"
+        sql = "DELETE FROM tags WHERE game_id=%s"
         self.cursor.execute(sql, (id,))
         self.connection.commit()
-        sql = "DELETE FROM ratings WHERE game_id=?"
+        sql = "DELETE FROM ratings WHERE game_id=%s"
         self.cursor.execute(sql, (id,))
         self.connection.commit()
 
@@ -114,7 +114,7 @@ class GamesDB:
         return rows
 
     def listGamesWithGeneralFilter(self, profile_name, game_name, description):
-        sql = "SELECT id, profile_name, game_name, description, last_played, plays FROM games WHERE profile_name LIKE ? AND description LIKE ? AND game_name LIKE ?"
+        sql = "SELECT id, profile_name, game_name, description, last_played, plays FROM games WHERE profile_name LIKE %s AND description LIKE %s AND game_name LIKE %s"
         # Add wild cards to the parsed input
         vals = ('%'+profile_name+'%', '%'+description+'%', '%'+game_name+'%')
         self.cursor.execute(sql, vals)
@@ -122,51 +122,51 @@ class GamesDB:
         self.addTagsAndRatings(rows)
         return rows
     def listGamesWithTagsFilter(self, tag):
-        query = "SELECT id, profile_name, game_name, description, last_played, plays FROM games WHERE id IN (SELECT game_id FROM tags WHERE tag = ?)"
+        query = "SELECT id, profile_name, game_name, description, last_played, plays FROM games WHERE id IN (SELECT game_id FROM tags WHERE tag = %s)"
         self.cursor.execute(query, (tag,))
         rows = self.cursor.fetchall()
         self.addTagsAndRatings(rows)
         return rows
 
     def getGameInfo(self, id):
-        sql = "SELECT id, profile_name, game_name, description, last_played, plays FROM games WHERE games.id = ?"
+        sql = "SELECT id, profile_name, game_name, description, last_played, plays FROM games WHERE games.id = %s"
         self.cursor.execute(sql,(id,))  
         gameInfo = self.cursor.fetchall()
         self.addTagsAndRatings(gameInfo)
         return gameInfo
     def getGameZip(self, id):
-        sql = "SELECT zip FROM games WHERE games.id = ?"
+        sql = "SELECT zip FROM games WHERE games.id = %s"
         self.cursor.execute(sql,(id,))
         zip = self.cursor.fetchone()
         return zip
     def getGameThumnail(self, id):
-        sql = "SELECT thumbnail FROM games WHERE games.id = ?"
+        sql = "SELECT thumbnail FROM games WHERE games.id = %s"
         self.cursor.execute(sql,(id,))
         thumbnail = self.cursor.fetchone()
         return thumbnail
     def gameExists(self, game_id):
-        sql = "SELECT game_name FROM games WHERE id = ?"
+        sql = "SELECT game_name FROM games WHERE id = %s"
         self.cursor.execute(sql, (game_id,))
         rows = self.cursor.fetchone()
         return rows is not None
 
 # Tags Methods
     def addTag(self, game_id, tag):
-        sql = "INSERT INTO tags (game_id, tag) VALUES (?,?)"
+        sql = "INSERT INTO tags (game_id, tag) VALUES (%s,%s)"
         tag = tag.upper()
         self.cursor.execute(sql, (game_id, tag))
         self.connection.commit()
     def deleteTag(self, game_id, tag):
         tag = tag.upper()
-        sql = "DELETE FROM tags WHERE game_id = ? AND tag = ?"
+        sql = "DELETE FROM tags WHERE game_id = %s AND tag = %s"
         self.cursor.execute(sql, (game_id, tag))
         self.connection.commit()
     def deleteGameTags(self, game_id):
-        sql = "DELETE FROM tags WHERE game_id = ?"
+        sql = "DELETE FROM tags WHERE game_id = %s"
         self.cursor.execute(sql, (game_id,))
         self.connection.commit()
     def getGameTags(self, id):
-        sql = "SELECT tag FROM tags WHERE game_id = ?"
+        sql = "SELECT tag FROM tags WHERE game_id = %s"
         self.cursor.execute(sql, (id,))
         rows = self.cursor.fetchall()
         tags = []
@@ -185,11 +185,11 @@ class GamesDB:
 
 # Ratings Methods
     def addRating(self, game_id, thumbUp, thumbDown):
-        sql = "INSERT INTO ratings (game_id, thumb_up, thumb_down) VALUES (?,?,?)"
+        sql = "INSERT INTO ratings (game_id, thumb_up, thumb_down) VALUES (%s,%s,%s)"
         self.cursor.execute(sql, (game_id, thumbUp, thumbDown))
         self.connection.commit()
     def getRatings(self, game_id):
-        sql = "SELECT * FROM ratings WHERE game_id = ?"
+        sql = "SELECT * FROM ratings WHERE game_id = %s"
         self.cursor.execute(sql, (game_id,))
         rows = self.cursor.fetchall()
         thumbs_up = 0
@@ -205,43 +205,43 @@ class GamesDB:
 
 #Roles Methods
     def addAdmin(self, profile_name):
-        sql = "INSERT INTO admins (profile_name) VALUES (?)"
+        sql = "INSERT INTO admins (profile_name) VALUES (%s)"
         self.cursor.execute(sql, (profile_name,))
         self.connection.commit()
     def removeAdmin(self, profile_name):
-        sql = "DELETE FROM admins WHERE profile_name = ?"
+        sql = "DELETE FROM admins WHERE profile_name = %s"
         self.cursor.execute(sql, (profile_name,))
         self.connection.commit()
     def isAdmin(self, profile_name):
-        sql = "SELECT profile_name FROM admins WHERE profile_name = ?"
+        sql = "SELECT profile_name FROM admins WHERE profile_name = %s"
         self.cursor.execute(sql, (profile_name,))
         rows = self.cursor.fetchone()
         return rows is not None
 
 # USERS operations
     def createUser(self, profile_name, encrypted_password):
-        Query = "INSERT INTO users (profile_name, encrypted_password) VALUES (?, ?)"
+        Query = "INSERT INTO users (profile_name, encrypted_password) VALUES (%s, %s)"
         self.cursor.execute(Query, (profile_name, encrypted_password))
         self.connection.commit()
     def getUserAuthInfo(self, profile_name):
-        Query = "SELECT rowid, encrypted_password FROM users WHERE profile_name = ?"
+        Query = "SELECT rowid, encrypted_password FROM users WHERE profile_name = %s"
         self.cursor.execute(Query, (profile_name,))
         user = self.cursor.fetchall()
         return user
     def getUser(self, ID):
-        Query = "SELECT profile_name FROM users WHERE rowid = ?"
+        Query = "SELECT profile_name FROM users WHERE rowid = %s"
         self.cursor.execute(Query, (ID,))
         user = self.cursor.fetchall()
         return user
     def checkProfileName(self, profile_name):
-        self.cursor.execute("SELECT profile_name FROM users WHERE profile_name = ?", (profile_name,))
+        self.cursor.execute("SELECT profile_name FROM users WHERE profile_name = %s", (profile_name,))
         profileNames = self.cursor.fetchall()
         taken = False
         if len(profileNames) > 0:
             taken = True
         return taken
     def profileNameOwnsGame(self, profile_name, game_id):
-        query = "SELECT game_name FROM games WHERE profile_name = ? AND id = ?" 
+        query = "SELECT game_name FROM games WHERE profile_name = %s AND id = %s" 
         self.cursor.execute(query, (profile_name, game_id))
         row = self.cursor.fetchone()
         return row is not None
