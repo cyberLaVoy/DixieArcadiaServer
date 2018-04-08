@@ -2,6 +2,7 @@ import os
 import psycopg2
 import psycopg2.extras
 import urllib.parse
+from passlib.hash import bcrypt
 
 class GamesDB:
 
